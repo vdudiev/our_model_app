@@ -41,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // TODO: Specify your own unique Application ID  (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.our_mediapipe_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
@@ -64,4 +64,11 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    // MediaPipe deps
+    implementation 'com.google.flogger:flogger:0.3.1'
+    implementation 'com.google.flogger:flogger-system-backend:0.3.1'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'com.google.guava:guava:27.0.1-android'
+    implementation 'com.google.protobuf:protobuf-java:3.11.4'
+}
