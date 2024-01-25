@@ -65,6 +65,8 @@ flutter {
 }
 
 dependencies {
+    implementation project(":epoch-library")
+
     // MediaPipe deps
     implementation 'com.google.flogger:flogger:0.3.1'
     implementation 'com.google.flogger:flogger-system-backend:0.3.1'

@@ -3,7 +3,9 @@ import 'package:elementary/elementary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:our_mediapipe_app/services/model_inference_service.dart';
+import 'package:our_mediapipe_app/utils/image_utils.dart';
 import 'package:our_mediapipe_app/utils/isolate_utils.dart';
+import 'package:flutter/services.dart';
 
 class CameraModel extends ElementaryModel {
   final BuildContext context;
@@ -11,6 +13,8 @@ class CameraModel extends ElementaryModel {
   late final List<CameraDescription> _cameras;
 
   bool _draw = false;
+
+  final _platform = const MethodChannel('samples.flutter.dev/mediapipe');
 
   bool _isRun = false;
 
@@ -63,7 +67,7 @@ class CameraModel extends ElementaryModel {
     await _isolateUtils.initIsolate();
     _modelInferenceService.setModelConfig();
     _cameras = await availableCameras();
-    _cameraController = CameraController(_cameras[1], ResolutionPreset.medium, enableAudio: false);
+    _cameraController = CameraController(_cameras.first, ResolutionPreset.medium, enableAudio: false);
     await _cameraController.initialize();
 
     _isCameraInited.value = true;
@@ -80,28 +84,27 @@ class CameraModel extends ElementaryModel {
       _predicting.value = true;
 
       if (_draw) {
-        await _modelInferenceService.inference(
-          isolateUtils: _isolateUtils,
-          cameraImage: cameraImage,
-        );
+        // await _modelInferenceService.inference(
+        //   isolateUtils: _isolateUtils,
+        //   cameraImage: cameraImage,
+        // );
+
+        await processFrame(cameraImage);
       }
 
       _predicting.value = false;
     }
   }
+
+  Future<void> processFrame(CameraImage image) async {
+    try {
+      final frame = ImageUtils.convertCameraImage(image)!;
+
+      final String result =
+          await _platform.invokeMethod('processMediaPipeGraph', {"frame": frame.getBytes()});
+      print('Processed data: $result');
+    } on PlatformException catch (e) {
+      print("Failed to process frame: '${e.message}'.");
+    }
+  }
 }
-
-
-// import 'package:flutter/services.dart';
-
-// void processFrame() async {
-//   const platform = const MethodChannel('samples.flutter.dev/mediapipe');
-
-//   try {
-//     final ByteData frame = // Получите ваш кадр здесь.
-//     final String result = await platform.invokeMethod('processMediaPipeGraph', {"frame": frame.buffer.asUint8List()});
-//     print('Processed data: $result');
-//   } on PlatformException catch (e) {
-//     print("Failed to process frame: '${e.message}'.");
-//   }
-// }
